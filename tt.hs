@@ -1,3 +1,6 @@
+import Data.List
+import GHC.OldList (subsequences)
+
 -- 1. Last element of a list--
 myLast :: [a] -> a
 myLast [] = error "list is empty therefore no last element"
@@ -29,5 +32,22 @@ myReverse (x : xs) = myReverse xs ++ [x]
 -- 6. Is Palindrome? --
 isPalindrome :: (Eq a) => [a] -> Bool
 isPalindrome xs = xs == myReverse xs
+
+-- 7. flatten a list --
+data NestedList a = Elem a | List [NestedList a]
+
+flatten :: NestedList a -> [a]
+flatten (Elem x) = [x]
+flatten (List x) = concatMap flatten x
+
+-- 8. remove duplicates --
+compress :: Eq a => [a] -> [a]
+compress = map head . group
+
+--9. consecutive duplicates into sublists --
+pack (x : xs) =
+  let (first, rest) = span (== x) xs
+   in (x : first) : pack rest
+pack [] = []
 
 list = [1, 2, 3, 4, 5]
