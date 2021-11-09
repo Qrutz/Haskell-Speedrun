@@ -35,17 +35,19 @@ value h
 -- get number of aces in a hand
 numberOfAces :: Hand -> Int
 -- filter the list of Cards where x has Rank Ace and get the length of that list
-numberOfAces cs = length (filter (\x -> rank x == Ace) cs)        
+numberOfAces hand = length (filter (\x -> rank x == Ace) hand)        
 
 -- A3 -- 
+-- If the value of hand is greater than 21 , print false-- 
 gameOver :: Hand -> Bool
-gameOver h = value h > 21
+gameOver hand = value hand > 21
 
 --A4--   
 winner :: Hand -> Hand -> Player 
-winner b g 
-        | gameOver b = Bank 
-        | gameOver g = Guest 
-        | value b <= value g = Guest 
+winner bank guest
+        | gameOver bank = Bank 
+        | gameOver guest = Guest 
+        | value bank <= value guest = Guest 
         | otherwise = Bank
+
 
