@@ -1,59 +1,130 @@
--- Create the type SUIT --
-data Suit = Spades | Hearts | Diamonds | Clubs
-  deriving (Show, Eq)
+-- | Data types for card games
+module Cards where
 
--- Each card has a Colour --
-data Colour = Black | Red
-  deriving (Show)
+import Test.QuickCheck
+import System.Random
 
--- Define color of type --
-colour :: Suit -> Colour
-colour Spades = Black
-colour Hearts = Red
-colour Diamonds = Red
-colour Clubs = Black
 
--- Define rank of card --
-data Rank = Numeric Integer | Jack | Queen | King | Ace
-  deriving (Show, Eq)
-
--- Function that takes 2 cards and compares their value returning true if value 1 is greater than value 2
-rankBeats :: Rank -> Rank -> Bool
-rankBeats _ Ace = False -- No Card in the entire deck beats ACE
-rankBeats Ace _ = True
-rankBeats _ King = False -- Every card in the deck does NOT BEAT KING. everyone but ACE
-rankBeats King _ = True
-rankBeats _ Queen = False
-rankBeats Queen _ = True
-rankBeats _ Jack = False
-rankBeats Jack _ = True
-rankBeats (Numeric m) (Numeric n) = m > n
-
--- prop_rankBeats a b = a /= b ==> rankBeats a b || rankBeats b a -- either a beats b and returns True, or B win and => false
-
--- define card --
+-- | A card has a rank and belongs to a suit.
 data Card = Card Rank Suit
-  deriving (Show)
+      deriving (Eq, Show)
 
--- functions to inspect Suit and Rank --
+-- | rank and suit give the respective parts of a card
 rank :: Card -> Rank
-rank (Card r s) = r
+rank (Card r _) = r
 
 suit :: Card -> Suit
-suit (Card r s) = s
+suit (Card _ s) = s
 
--- When does one card beat annother  -> when both cards have the same suit and the rank is higher--
-cardBeats :: Card -> Card -> Bool
-cardBeats c d
-  | suit c == suit d = rankBeats (rank c) (rank d)
-  | otherwise = False
 
---  Model a hand --
-data Hand = Empty | Add Card Hand
-  deriving (Show)
+-- | A rank is either a numeric card, a face card, or an ace. The
+-- numeric cards range from two to ten.
+data Rank = Numeric Int | Jack | Queen | King | Ace
+            deriving (Eq, Show)
 
---When can a hand beat a card --
-handBeats :: Hand -> Card -> Bool
-handBeats Empty card = False
-handBeats (Add c h) card =
-  cardBeats c card || handBeats h card
+-- | All the different suits.
+data Suit = Hearts | Spades | Diamonds | Clubs
+            deriving (Eq, Show)
+
+-- | A hand of cards. This data type can also be used to represent a
+-- deck of cards.
+type Hand = [Card]
+
+-- | The size of a hand. UPPGIFT A0 
+size :: Num a => Hand -> a
+size = foldr (\ card -> (+) 1) 0
+
+sizeSteps :: [Int]
+sizeSteps = [   size hand2Cards,
+                size [Card (Numeric 2) Hearts, Card Jack Spades],
+                1 + size [Card Jack Spades],
+                1 + 1 + size [],
+                1 + 1 + 0,
+                2
+            ]
+
+
+
+
+
+
+
+
+-- Example Cards --  
+
+aCard1 :: Card
+aCard1 = Card King Spades
+
+aCard2 :: Card
+aCard2 = Card Queen Spades
+
+aCard3 :: Card
+aCard3 = Card King Spades
+
+aCard4 :: Card
+aCard4 = Card Ace Spades
+
+aCard5 :: Card
+aCard5 = Card (Numeric 9) Hearts
+
+aCard6 :: Card
+aCard6 = Card Ace Hearts
+
+
+-- Example hands -- 
+
+
+hand2Cards = [aCard1, aCard2]
+
+hand3Cards = [aCard1, aCard2, aCard3]
+
+
+handz :: Hand 
+handz = [aCard1, aCard2, aCard3, aCard4, aCard5]
+
+doubleAce :: Hand
+doubleAce = [aCard4, aCard4]
+
+bustHand :: Hand 
+bustHand = [aCard1, aCard2, aCard5]
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------
+-- Functions below are to tell QuickCheck how to generate random cards
+-- We will see how to do this in week 4.
+
+-- | Generate a random Card
+-- instance Arbitrary Card where
+--   arbitrary = Card <$> arbitrary <*> arbitrary
+
+-- -- | Random generator for Suit
+-- instance Arbitrary Suit where
+--   arbitrary = elements [Hearts, Spades, Diamonds, Clubs]
+
+-- -- | Random generator for Rank
+-- instance Arbitrary Rank where
+--   arbitrary = frequency [ (4, elements [Jack,Queen,King,Ace])
+--                         , (9, Numeric <$> choose (2, 10))
+--                         ]
+
+-- -- | Random generator for Hand
+-- instance Arbitrary Hand where
+--   arbitrary = frequency [  (1,  return Empty)
+--                         ,  (7, Add <$> arbitrary <*> arbitrary)
+--                         ]
+--   shrink Empty = []
+--   shrink (Add c h) = Empty : h : [Add c h' | h'<-shrink h]
+
+
+-- -- We also need to be able to generate random number generators. (This
+-- -- does not really belong in this file, but is placed here to reduce
+-- -- the number of files needed.)
+-- instance Arbitrary StdGen where
+--   arbitrary = mkStdGen <$> arbitrary
