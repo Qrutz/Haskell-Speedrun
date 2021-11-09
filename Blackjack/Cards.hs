@@ -31,8 +31,9 @@ data Suit = Hearts | Spades | Diamonds | Clubs
 type Hand = [Card]
 
 -- | The size of a hand. UPPGIFT A0 
-size :: Num a => Hand -> a
-size = foldr (\ card -> (+) 1) 0
+size :: Hand -> Int
+size [] = 0 
+size (_:xs) = 1 + size xs
 
 sizeSteps :: [Int]
 sizeSteps = [   size hand2Cards,
@@ -70,7 +71,6 @@ aCard5 = Card (Numeric 9) Hearts
 aCard6 :: Card
 aCard6 = Card Ace Hearts
 
-
 -- Example hands -- 
 
 
@@ -87,10 +87,6 @@ doubleAce = [aCard4, aCard4]
 
 bustHand :: Hand 
 bustHand = [aCard1, aCard2, aCard5]
-
-
-
-
 
 
 
@@ -128,3 +124,4 @@ bustHand = [aCard1, aCard2, aCard5]
 -- -- the number of files needed.)
 -- instance Arbitrary StdGen where
 --   arbitrary = mkStdGen <$> arbitrary
+
