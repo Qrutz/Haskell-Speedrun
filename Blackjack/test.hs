@@ -1,70 +1,83 @@
--- blackjack game --
-data Suit = Hearts | Diamonds | Clubs | Spades
-  deriving (Eq, Ord, Show, Read, Enum, Bounded)
+{-# LANGUAGE BlockArguments #-}
+module BlackJack where
+import Cards
+import RunGame
+import Test.QuickCheck
 
-data Rank = Numeric Int | Jack | Queen | King | Ace
-  deriving (Eq, Ord, Show, Read, Enum, Bounded)
+-- Cards for testing
+hand  = Add (Card Ace Spades) Empty
+hand2 = Add(Card (Numeric 2) Hearts)(Add (Card Jack Spades) Empty)
+hand3 = Add(Card Ace Diamonds)(Add(Card (Numeric 6) Hearts)(Add (Card Jack Spades) Empty))
+hand4 = Add(Card Ace Diamonds)(Add(Card (Numeric 10) Diamonds)(Add(Card (Numeric 2) Hearts)(Add (Card Jack Spades) Empty)))
+hand5 = Add(Card Ace Diamonds)(Add(Card (Numeric 8) Diamonds)(Add(Card (Numeric 2) Hearts)(Add (Card Jack Spades) Empty)))
+hand6 = Add(Card Ace Diamonds)(Add(Card (Numeric 10) Diamonds)(Add(Card (Numeric 3) Hearts)(Add (Card Jack Spades) Empty)))
+hand7 = Add(Card Ace Hearts)(Add (Card Ace Spades) Empty)
 
-colour :: Suit -> String
-colour Hearts   = "red"
-colour Diamonds = "red"
-colour Clubs    = "black"
-colour Spades   = "black"
+-- A0
+-- Shows how the size function works
+sizeSteps :: [Integer]
+sizeSteps = [ size hand2
+            , size (Add (Card (Numeric 2) Hearts)
+                   (Add (Card Jack Spades) Empty))
+            , 1 + size (Add (Card Jack Spades) Empty)
+            , 1 + 1 + size Empty
+            , 1 + 1 + 0
+            ,2]
 
-data Card = Card { rank :: Rank, suit :: Suit }
-  deriving (Eq, Ord, Show, Read)
-
-data Hand = Hand [Card]
-  deriving (Eq, Ord, Show, Read)
-
-data Player = Player { name :: String, hand :: Hand }
-  deriving (Eq, Ord, Show, Read)
-
-data Game = Game { players :: [Player], dealer :: Player }
-  deriving (Eq, Ord, Show, Read)
-
-data GameState = GameState { game :: Game, player :: Player }
-  deriving (Eq, Ord, Show, Read)
-
-data Action = Hit | Stand | DoubleDown | Split | Surrender
-  deriving (Eq, Ord, Show, Read)
-
-data Result = Win | Lose | Push
-  deriving (Eq, Ord, Show, Read)
-
-data Bet = Bet { amount :: Int, result :: Result }
-  deriving (Eq, Ord, Show, Read)
-
-data BettingState = BettingState { bets :: [Bet], player :: Player }
-  deriving (Eq, Ord, Show, Read)
-
-data GameState' = GameState' { game :: Game, player :: Player, bettingState :: BettingState }
-  deriving (Eq, Ord, Show, Read)
-
-rankbeats :: Rank -> Rank -> Bool
-rankbeats (Numeric n) (Numeric m) = n > m
-rankbeats Jack  = True
-rankbeats Queen  = True
-rankbeats King  = True
-rankbeats Ace  = True
-rankbeats   = False
-
-handbeats :: Hand -> Hand -> Bool
-handbeats (Hand [])  = False
-handbeats  (Hand []) = True
-handbeats (Hand (c1:cs)) (Hand (c2:cs')) =
-  if rank c1 == rank c2
-    then handbeats (Hand cs) (Hand cs')
-    else rankbeats (rank c1) (rank c2)
-
-suit :: Card -> Suit
-suit (Card _ s) = s
-
-cardbeats :: Card -> Card -> Bool
-cardbeats c1 c2 = rankbeats (rank c1) (rank c2)
+-- A1
+-- Helper function used in display. Function 'Show' converts types to String
+displayCard :: Card -> String
+displayCard (Card r s) = show r ++ " of " ++ show s 
+        
+-- show values hardcoded to fix "Numeric n issue" --              -- Ta bort show från datatypen rank för att de ska fungera--
+instance Show Rank where
+  show (Numeric n) = show n
+  show Jack = "Jack"
+  show Queen = "Queen"
+  show King = "King"
+  show Ace = "Ace"
 
 
+-- Shows the cards in String
+display ::Hand->String
+display Empty = ""
+display (Add card hand) ="(" ++ displayCard card ++ ") " ++ display hand 
 
--- start the game
-start :: Game
-start = Game { players = [], dealer = Player { name = "Dealer", hand = Hand [] } }
+       
+-- A2
+-- Gives the card its numeric value
+-- The last case covers Jack, Queen and King
+valueRank :: Rank -> Integer
+valueRank (Numeric n) = n
+valueRank Ace         = 11
+valueRank _           = 10
+
+--Calculates the values of the cards
+initialValue :: Hand -> Integer
+initialValue Empty = 0
+initialValue (Add card hand) = valueRank(rank card) + value hand
+
+-- Helper function to shift the Ace's value 
+numberOfAces :: Hand -> Integer
+numberOfAces Empty = 0
+numberOfAces (Add card hand) | rank card == Ace = 1 + numberOfAces hand
+                             | otherwise         = numberOfAces hand
+
+-- Two cases: standard case and one where the Ace's shift
+value :: Hand->Integer
+value hand | initialValue hand <= 21 = initialValue hand
+           | otherwise                = initialValue hand - 10*numberOfAces hand
+
+-- A3
+-- Helper function to declare a winner
+gameOver ::Hand->Bool
+gameOver h = value h > 21
+
+-- A4
+-- Declares a winner
+winner :: Hand -> Hand -> Player 
+winner guest bank
+        | gameOver bank = Guest 
+        | gameOver guest = Bank
+        | value guest <= value bank = Bank 
+        | otherwise = Guest
