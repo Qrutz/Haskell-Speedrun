@@ -81,3 +81,36 @@ winner guest bank
         | gameOver guest = Bank
         | value guest <= value bank = Bank 
         | otherwise = Guest
+
+
+
+
+
+
+-- B1 -- 
+
+-- associative function that puts one hand on top of anntoher using recursion
+(<+) :: Hand -> Hand -> Hand
+(<+) firstHand Empty            = firstHand 
+(<+) Empty secondHand           = secondHand 
+(<+) (Add card hand) secondHand = Add card (hand <+ secondHand)
+
+
+prop_onTopOf_assoc :: Hand -> Hand -> Hand -> Bool
+prop_onTopOf_assoc p1 p2 p3 =
+    p1<+(p2<+p3) == (p1<+p2)<+p3
+
+
+sizeOfNew :: Hand -> Hand -> Bool 
+sizeOfNew h1 h2 = sizeOfHand == size (h1 <+ h2)
+            where sizeOfHand = size h1 + size h2
+          
+
+-- B2 -- 
+
+
+-- use <+ function to stack every card in a suit toghether
+
+suitHand :: Suit -> Hand 
+suitHand suit = Add card hand
+  let ranks = [Jack, Queen, King, Ace]
