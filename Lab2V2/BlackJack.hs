@@ -3,6 +3,7 @@ module BlackJack where
 import Cards
 import RunGame
 import Test.QuickCheck
+import System.Random
 
 -- Cards for testing
 hand  = Add (Card Ace Spades) Empty
@@ -27,15 +28,9 @@ sizeSteps = [ size hand2
 -- A1
 -- Helper function used in display. Function 'Show' converts types to String
 displayCard :: Card -> String
+displayCard (Card (Numeric n) s) = show n ++ " of " ++ show s
 displayCard (Card r s) = show r ++ " of " ++ show s
 
--- show values hardcoded to fix "Numeric n issue" --              -- Ta bort show från datatypen rank för att de ska fungera--
--- instance Show Rank where
---   show (Numeric n) = show n
---   show Jack = "Jack"
---   show Queen = "Queen"
---   show King = "King"
---   show Ace = "Ace"
 
 
 -- Shows the cards in String
@@ -103,8 +98,6 @@ sizeOfNew h1 h2 = sizeOfHand == size (h1 <+ h2)
 
 
 -- B2 -- 
-
-
 -- use <+ function to stack every card in a suit toghether
 
 suitDeck :: Suit -> Hand
@@ -122,7 +115,18 @@ fullDeck = suitDeck Spades <+
            suitDeck Clubs
 
 
--- b3 -- 
+-- B3 -- 
 draw :: Hand -> Hand -> (Hand,Hand)
 draw Empty hand = error "the deck is empty"
 draw (Add card deck) hand = (deck , Add card hand)
+
+-- b4 -- 
+playBank :: Hand -> Hand 
+playBank deck = playBankHelper deck Empty 
+
+
+playBankHelper :: Hand -> Hand -> Hand 
+playBankHelper deck hand
+        | value biggerHand >= 16 = biggerHand
+        | otherwise          = playBankHelper smallerDeck biggerHand 
+    where (smallerDeck, biggerHand) = draw deck hand   
