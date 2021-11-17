@@ -2,7 +2,7 @@
 module BlackJack where
 import Cards
 import RunGame
-import Test.QuickCheck
+import Test.QuickCheck hiding (shuffle)
 import System.Random
 
 -- Cards for testing
@@ -108,6 +108,7 @@ suitDeck suit =
         in foldr (<+) Empty hands
 
 
+-- returns full deck of cards by adding all cards of each suit on top of each other
 fullDeck :: Hand
 fullDeck = suitDeck Spades <+
            suitDeck Diamonds <+
@@ -116,17 +117,71 @@ fullDeck = suitDeck Spades <+
 
 
 -- B3 -- 
+
+
+-- Given a deck and a hand, draws one card from deck and puts on hand--
 draw :: Hand -> Hand -> (Hand,Hand)
 draw Empty hand = error "the deck is empty"
 draw (Add card deck) hand = (deck , Add card hand)
 
 -- b4 -- 
+
+-- given empty hand returns the banks final hand
 playBank :: Hand -> Hand 
 playBank deck = playBankHelper deck Empty 
 
-
+-- function that gives bank the best hand for given  blackjack rules 
 playBankHelper :: Hand -> Hand -> Hand 
 playBankHelper deck hand
         | value biggerHand >= 16 = biggerHand
-        | otherwise          = playBankHelper smallerDeck biggerHand 
+        | otherwise              = playBankHelper smallerDeck biggerHand 
     where (smallerDeck, biggerHand) = draw deck hand   
+
+
+-- b5 --
+
+-- | Returns a Shuffled deck
+shuffle :: StdGen -> Hand -> Hand
+shuffle g Empty = Empty
+shuffle g h     = Add card' (shuffle g1 hand')
+  where (card', hand')  = removeCard h Empty index
+        (index, g1)     = randomR (1, size h) g
+
+
+
+-- Removes the nth card from hand --
+removeCard :: Hand ->  Hand -> Integer -> (Card, Hand)
+removeCard (Add c h1) h2 1        = (c, h1 <+ h2)
+removeCard h1         h2 index   = removeCard h1' h2' (index-1)
+  where (h1', h2') = draw h1 h2
+
+
+prop_shuffle_sameCards :: StdGen -> Card -> Hand -> Bool
+prop_shuffle_sameCards g c h =
+    c `belongsTo` h == c `belongsTo` shuffle g h  
+
+
+belongsTo :: Card -> Hand -> Bool
+c `belongsTo` Empty = False
+c `belongsTo` (Add c' h) = c == c' || c `belongsTo` h
+
+prop_size_shuffle :: StdGen -> Hand -> Bool
+prop_size_shuffle g h = size (shuffle g h) == size h
+
+
+
+-- B6--
+implementation = Interface
+  { iFullDeck = fullDeck
+  , iValue    = value
+  , iDisplay  = display
+  , iGameOver = gameOver
+  , iWinner   = winner 
+  , iDraw     = draw
+  , iPlayBank = playBank
+  , iShuffle  = shuffle
+  }
+
+
+main :: IO ()
+main = runGame implementation
