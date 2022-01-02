@@ -57,3 +57,22 @@ showExpr X = "x"
 
 instance Show Expr where
   show = showExpr
+
+data Grid a = Grid [[a]]
+  deriving (Eq, Show)
+
+g1, g2 :: Grid Int -- Example grids
+g1 =
+  Grid
+    [ [1, 2],
+      [3, 4],
+      [5, 6]
+    ]
+g2 =
+  Grid
+    [ [5, 3, 1],
+      [6, 4, 2]
+    ]
+
+mapGrid :: (a -> b) -> Grid a -> Grid b
+mapGrid f = Grid . map (map f) . rows
