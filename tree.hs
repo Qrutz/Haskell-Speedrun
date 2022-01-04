@@ -148,4 +148,5 @@ compress s = map head $ group s
 
 pack arr = group arr
 
-encode s = 
+encode :: Eq a => [a] -> [(Int, a)]
+encode s = zip (map length $ pack s) (map head $ pack s)
