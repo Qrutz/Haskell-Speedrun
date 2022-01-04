@@ -150,3 +150,11 @@ pack arr = group arr
 
 encode :: Eq a => [a] -> [(Int, a)]
 encode s = zip (map length $ pack s) (map head $ pack s)
+
+data ListItem a = Single a | Multiple Int a
+  deriving (Show)
+
+encodeModified s = map encodeHelper $ encode s
+  where
+    encodeHelper (1, x) = Single x
+    encodeHelper (n, x) = Multiple n x
