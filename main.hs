@@ -168,3 +168,6 @@ w = decodeModified [Multiple 4 'a', Single 'b', Multiple 2 'c', Multiple 2 'a', 
 
 whitespace :: String -> String
 whitespace s = [x | x <- s, x /= ' ']
+
+dupli [] = []
+dupli (x : xs) = x : x : dupli xs
