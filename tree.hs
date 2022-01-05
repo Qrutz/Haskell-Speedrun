@@ -158,3 +158,26 @@ encodeModified s = map encodeHelper $ encode s
   where
     encodeHelper (1, x) = Single x
     encodeHelper (n, x) = Multiple n x
+
+decodeModified s = whitespace $ unwords $ map decodeHelper $ s
+  where
+    decodeHelper (Multiple n x) = replicate n x
+    decodeHelper (Single x) = replicate 1 x
+
+w = decodeModified [Multiple 4 'a', Single 'b', Multiple 2 'c', Multiple 2 'a', Single 'd', Multiple 4 'e']
+
+whitespace :: String -> String
+whitespace s = [x | x <- s, x /= ' ']
+
+dupli [] = []
+dupli (x : xs) = x : x : dupli xs
+
+repli xs n = concatMap (replicate n) xs
+
+dropEvery xs s
+  | length xs < s = xs
+  | otherwise = take (s - 1) xs ++ dropEvery (drop s xs) s
+
+insertAt :: a -> [a] -> Int -> [a]
+insertAt x ys 1 = x : ys
+insertAt x (y : ys) n = y : insertAt x ys (n - 1)
