@@ -9,7 +9,7 @@ treeDepth Leaf = 0
 treeDepth (Node _ leftSubtree rightSubtree) = 1 + max (treeDepth leftSubtree) (treeDepth rightSubtree)
 
 singleTon :: a -> Tree a
-singleTon x = Node x Leaf Leaf
+singleTon x = Node x Leaf Leafaaa
 
 treeInsert :: (Ord a) => a -> Tree a -> Tree a
 treeInsert x Leaf = singleTon x
