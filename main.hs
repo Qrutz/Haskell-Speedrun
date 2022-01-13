@@ -4,7 +4,7 @@ import Data.Text (toUpper)
 data Tree a = Leaf | Node a (Tree a) (Tree a)
   deriving (Show)
 
-treeDepth :: Tree Int -> Int
+treeDepth :: Tree Int -> Int -- ll --
 treeDepth Leaf = 0
 treeDepth (Node _ leftSubtree rightSubtree) = 1 + max (treeDepth leftSubtree) (treeDepth rightSubtree)
 
