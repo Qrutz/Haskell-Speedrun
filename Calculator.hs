@@ -1,7 +1,7 @@
 -- This module is a starting point for implementing the Graph Drawing
 -- Calculator as described in Part II of the Standard Lab. You can use this
 -- directly, or just study it as an example of how to use threepenny-gui.
-
+z
 import ThreepennyPages
     ( mkButton,
       mkCanvas,
