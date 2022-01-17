@@ -9,7 +9,7 @@ import Test.QuickCheck
 import Data.Attoparsec.ByteString.Char8 (isSpace)
 import Data.Maybe (fromJust)
 
-
+aaaaa
 
 -- 1. A.                                                                                                                                                            -- 
 data Expr = Num Double
