@@ -4,7 +4,7 @@
 z
 import ThreepennyPages
     ( mkButton,
-      mkCanvas,
+      mkCanvas,z
       mkHTML,
       mkInput,
       mkSlider,
@@ -53,7 +53,7 @@ points e s (width,height) = let xs = [0..fromIntegral width]
 
 canWidth,canHeight :: Num a => a
 canWidth  = 400
-canHeight = 400
+canHeight = 400z
 
 main :: IO ()
 main = startGUI defaultConfig setup
