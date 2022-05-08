@@ -12,7 +12,7 @@ rank :: Card -> Rank
 rank (Card r _) = r
 
 suit :: Card -> Suit
-suit (Card _ s) = s
+suit (Card _ s) = s¨åä
 
 -- | A rank is either a numeric card, a face card, or an ace. The
 -- numeric cards range from two to ten.
